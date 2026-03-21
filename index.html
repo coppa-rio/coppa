@@ -1,227 +1,893 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Em Breve</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
-    :root {
-      --bg: #0a0a0f;
-      --surface: #13131a;
-      --border: rgba(255,255,255,0.08);
-      --accent: #7c6aff;
-      --accent2: #ff6a9c;
-      --text: #f0f0f5;
-      --muted: #7070a0;
-    }
- 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      padding: 2rem;
-      overflow: hidden;
-    }
- 
-    /* background blobs */
-    body::before, body::after {
-      content: '';
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.15;
-      pointer-events: none;
-      z-index: 0;
-    }
-    body::before {
-      width: 500px; height: 500px;
-      background: var(--accent);
-      top: -100px; left: -100px;
-    }
-    body::after {
-      width: 400px; height: 400px;
-      background: var(--accent2);
-      bottom: -100px; right: -100px;
-    }
- 
-    .container {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      width: 100%;
-      max-width: 600px;
-      animation: fadeUp 0.8s ease both;
-    }
- 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
- 
-    .badge {
-      background: rgba(124, 106, 255, 0.15);
-      border: 1px solid rgba(124, 106, 255, 0.3);
-      color: var(--accent);
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-    }
- 
-    h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(1.8rem, 5vw, 3rem);
-      font-weight: 400;
-      text-align: center;
-      line-height: 1.2;
-    }
- 
-    h1 span {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
- 
-    .subtitle {
-      color: var(--muted);
-      font-size: 0.95rem;
-      font-weight: 300;
-      text-align: center;
-    }
- 
-    /* search form */
-    form {
-      width: 100%;
-      display: flex;
-      gap: 0.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 0.5rem;
-      transition: border-color 0.3s;
-    }
- 
-    form:focus-within {
-      border-color: rgba(124, 106, 255, 0.5);
-      box-shadow: 0 0 0 3px rgba(124, 106, 255, 0.1);
-    }
- 
-    input[type="text"] {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 1rem;
-      padding: 0.6rem 0.8rem;
-    }
- 
-    input::placeholder { color: var(--muted); }
- 
-    button[type="submit"] {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
-      padding: 0.6rem 1.4rem;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.2s;
-      white-space: nowrap;
-    }
- 
-    button[type="submit"]:hover { opacity: 0.85; transform: scale(1.03); }
-    button[type="submit"]:active { transform: scale(0.97); }
- 
-    /* quick buttons */
-    .quick-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      align-self: flex-start;
-    }
- 
-    .quick-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      width: 100%;
-    }
- 
-    .quick-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--muted);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      padding: 0.4rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      display: inline-block;
-    }
- 
-    .quick-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(124, 106, 255, 0.08);
-    }
- 
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: var(--border);
-    }
- 
-    .footer {
-      color: var(--muted);
-      font-size: 0.78rem;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>coppa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --text: #1A1A1A;
+    --text-soft: #6B6B6B;
+    --text-muted: #9E9E9E;
+    --accent: #FF385C;
+    --accent-hover: #E0294A;
+    --accent-light: #FFF0F3;
+    --border: #EBEBEB;
+    --border-focus: #222222;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --shadow-xl: 0 16px 48px rgba(0,0,0,0.14);
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-full: 999px;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== NAVBAR ===== */
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(250,250,248,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+  }
+  .navbar.scrolled { background: rgba(255,255,255,0.95); }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    cursor: pointer;
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500;
+    color: var(--text-soft);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    transition: var(--transition);
+  }
+  .nav-links a:hover { background: #F0F0F0; color: var(--text); }
+  .nav-links .btn-cta {
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    font-weight: 600;
+  }
+  .nav-links .btn-cta:hover { background: #333; color: white; }
+
+  /* ===== PAGE: HOME ===== */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; }
+
+  .home-page {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 100vh;
+    padding: 120px 24px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background decoration */
+  .home-page::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,56,92,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .home-page::after {
+    content: '';
+    position: absolute;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,56,92,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .home-content {
+    text-align: center;
+    max-width: 720px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.8s ease-out;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .home-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    background: var(--accent-light);
+    border-radius: var(--radius-full);
+    font-size: 13px; font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease-out 0.1s both;
+  }
+  .home-badge svg { width: 14px; height: 14px; }
+
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 16px;
+    animation: fadeUp 0.8s ease-out 0.15s both;
+  }
+
+  .home-subtitle {
+    font-size: 17px;
+    color: var(--text-soft);
+    margin-bottom: 48px;
+    line-height: 1.6;
+    animation: fadeUp 0.8s ease-out 0.2s both;
+  }
+
+  /* ===== SEARCH BAR ===== */
+  .search-container {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; max-width: 640px;
+    margin: 0 auto;
+    animation: fadeUp 0.8s ease-out 0.3s both;
+  }
+
+  .search-bar {
+    flex: 1;
+    display: flex; align-items: center;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-full);
+    padding: 6px 6px 6px 24px;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+  .search-bar:focus-within {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-lg);
+  }
+  .search-bar svg {
+    width: 20px; height: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .search-bar input {
+    flex: 1;
+    border: none; outline: none;
+    font-size: 15px; font-family: inherit;
+    padding: 14px 12px;
+    background: transparent;
+    color: var(--text);
+  }
+  .search-bar input::placeholder { color: var(--text-muted); }
+
+  .search-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+  }
+  .search-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+  .search-btn svg { width: 18px; height: 18px; }
+
+  .filter-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 16px 22px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-full);
+    font-size: 14px; font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+    font-family: inherit;
+  }
+  .filter-btn:hover {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-md);
+  }
+  .filter-btn.has-filters {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .filter-btn svg { width: 18px; height: 18px; }
+  .filter-count {
+    background: var(--accent);
+    color: white;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Quick category chips */
+  .quick-categories {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+    margin-top: 28px;
+    animation: fadeUp 0.8s ease-out 0.45s both;
+  }
+  .chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    font-size: 13px; font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .chip:hover {
+    border-color: var(--text);
+    color: var(--text);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .chip .chip-emoji { font-size: 16px; }
+
+  /* ===== FILTER MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    animation: fadeIn 0.25s ease;
+  }
+  .modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    width: 90%; max-width: 680px;
+    max-height: 85vh;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-xl);
+    animation: modalSlide 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes modalSlide {
+    from { opacity: 0; transform: scale(0.92) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 { font-size: 18px; font-weight: 700; }
+  .modal-close {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #F0F0F0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+    font-size: 18px; color: var(--text);
+  }
+  .modal-close:hover { background: #E0E0E0; }
+
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .filter-section { margin-bottom: 28px; }
+  .filter-section:last-child { margin-bottom: 0; }
+
+  .filter-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    padding-bottom: 12px;
+  }
+  .filter-section-header h3 {
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filter-section-header h3 .emoji { font-size: 18px; }
+  .filter-section-header .toggle-arrow {
+    font-size: 12px; color: var(--text-muted);
+    transition: var(--transition);
+  }
+  .filter-section-header .toggle-arrow.open { transform: rotate(180deg); }
+
+  .filter-options {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding-top: 4px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+  .filter-options.open { max-height: 500px; }
+
+  .filter-tag {
+    padding: 8px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-full);
+    font-size: 13px; font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--card);
+    user-select: none;
+  }
+  .filter-tag:hover { border-color: var(--text); color: var(--text); }
+  .filter-tag.selected {
+    background: var(--text);
+    border-color: var(--text);
+    color: white;
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .btn-clear {
+    background: none; border: none;
+    font-size: 14px; font-weight: 600;
+    color: var(--text-soft);
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+  }
+  .btn-clear:hover { color: var(--text); }
+  .btn-apply {
+    padding: 14px 28px;
+    background: var(--text);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  .btn-apply:hover { background: #333; }
+
+  /* ===== RESULTS PAGE ===== */
+  .results-page {
+    padding-top: 80px;
+    min-height: 100vh;
+  }
+
+  .results-topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    overflow-x: auto;
+  }
+  .results-topbar::-webkit-scrollbar { display: none; }
+
+  .results-query {
+    font-size: 14px; font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    padding-right: 12px;
+    border-right: 1px solid var(--border);
+    margin-right: 4px;
+  }
+
+  .active-filter-chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    background: #F5F5F5;
+    border-radius: var(--radius-full);
+    font-size: 13px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .active-filter-chip .remove {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #DADADA;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+    transition: var(--transition);
+  }
+  .active-filter-chip .remove:hover { background: var(--accent); color: white; }
+
+  .results-layout {
+    display: flex;
+    height: calc(100vh - 136px);
+  }
+
+  .results-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    max-width: 560px;
+    min-width: 400px;
+  }
+  .results-list::-webkit-scrollbar { width: 4px; }
+  .results-list::-webkit-scrollbar-thumb { background: #DDD; border-radius: 4px; }
+
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .results-header h2 { font-size: 22px; font-weight: 700; }
+  .results-header span { font-size: 13px; color: var(--text-muted); }
+
+  .result-card {
+    display: flex; gap: 16px;
+    padding: 18px;
+    background: var(--card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+  }
+  .result-card:hover {
+    border-color: var(--text);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .result-card.highlighted {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(255,56,92,0.15);
+  }
+
+  .result-img {
+    width: 110px; height: 110px;
+    border-radius: var(--radius-sm);
+    background: #F0F0F0;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+
+  .result-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .result-info h3 { font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .result-category {
+    font-size: 12px; color: var(--text-muted); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .result-rating {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 600;
+  }
+  .result-rating .star { color: var(--accent); }
+  .result-rating .count { color: var(--text-muted); font-weight: 400; }
+  .result-address {
+    font-size: 13px; color: var(--text-soft);
+    margin-top: auto;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .result-address svg { width: 14px; height: 14px; color: var(--text-muted); }
+
+  .result-number {
+    position: absolute;
+    top: 18px; right: 18px;
+    width: 26px; height: 26px;
+    background: var(--text);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+
+  /* Map */
+  .results-map {
+    flex: 1;
+    background: #E8E4DD;
+    position: relative;
+    overflow: hidden;
+  }
+  .results-map iframe {
+    width: 100%; height: 100%;
+    border: none;
+  }
+  .map-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .navbar { padding: 12px 16px; }
+    .nav-links a:not(.btn-cta) { display: none; }
+    .home-page { padding: 100px 16px 40px; }
+    .search-container { flex-wrap: wrap; }
+    .filter-btn { flex: 0 0 100%; justify-content: center; order: 3; }
+    .results-layout { flex-direction: column; height: auto; }
+    .results-list { max-width: 100%; min-width: auto; max-height: 50vh; }
+    .results-map { height: 50vh; }
+    .results-topbar { padding: 12px 16px; }
+    .modal { width: 95%; margin: 12px; }
+    .result-img { width: 85px; height: 85px; }
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <span class="badge">🚧 Em construção</span>
- 
-    <h1>Enquanto nosso site<br>não fica pronto,<br><span>dê uma googlada</span></h1>
-    <p class="subtitle">Tenha só um pouco de paciência, você não se arrependerá ;]</p>
- 
-    <form action="https://www.google.com/search" method="GET" target="_blank">
-      <input type="text" name="q" placeholder="O que você quer pesquisar?">
-      <button type="submit">Buscar →</button>
-    </form>
- 
-    <span class="quick-label">Buscas rápidas</span>
-    <div class="quick-buttons">
-      <a class="quick-btn" href="https://www.google.com/search?q=notícias+hoje" target="_blank">📰 Notícias</a>
-      <a class="quick-btn" href="https://www.google.com/search?q=clima+agora" target="_blank">☀️ Clima</a>
-      <a class="quick-btn" href="https://www.google.com/search?q=restaurantes+perto+de+mim" target="_blank">🍽️ Restaurantes</a>
-      <a class="quick-btn" href="https://www.google.com/search?q=filmes+em+cartaz" target="_blank">🎬 Filmes</a>
-    </div>
- 
-    <div class="divider"></div>
-    <p class="footer">Voltaremos em breve. Prometemos. 🤙</p>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="logo" onclick="goHome()">copa<span>commerce</span></div>
+  <div class="nav-links">
+    <a href="#">Explorar</a>
+    <a href="#">Para Comerciantes</a>
+    <a href="#" class="btn-cta">Cadastre-se</a>
   </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div class="page active" id="homePage">
+  <div class="home-page">
+    <div class="home-content">
+
+      <div class="home-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Copacabana, Rio de Janeiro
+      </div>
+
+      <h1 class="home-title">Encontre tudo e mais<br>um pouco ;)</h1>
+
+      <!-- Search -->
+      <div class="search-container">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="O que você procura em Copacabana?" onkeydown="if(event.key==='Enter') doSearch()">
+          <button class="search-btn" onclick="doSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+        </div>
+        <button class="filter-btn" id="filterBtn" onclick="openFilters()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="currentColor"/></svg>
+          Filtros
+        </button>
+      </div>
+
+      <!-- Quick categories -->
+      <div class="quick-categories">
+        <div class="chip" onclick="quickSearch('Restaurantes')"><span class="chip-emoji">🍽️</span> Restaurantes</div>
+        <div class="chip" onclick="quickSearch('Padarias')"><span class="chip-emoji">🥐</span> Padarias</div>
+        <div class="chip" onclick="quickSearch('Farmácias')"><span class="chip-emoji">💊</span> Farmácias</div>
+        <div class="chip" onclick="quickSearch('Academias')"><span class="chip-emoji">💪</span> Academias</div>
+        <div class="chip" onclick="quickSearch('Salão de Beleza')"><span class="chip-emoji">💇</span> Beleza</div>
+        <div class="chip" onclick="quickSearch('Mercados')"><span class="chip-emoji">🛒</span> Mercados</div>
+        <div class="chip" onclick="quickSearch('Pet Shop')"><span class="chip-emoji">🐾</span> Pet Shop</div>
+        <div class="chip" onclick="quickSearch('Bares')"><span class="chip-emoji">🍺</span> Bares</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULTS PAGE ===== -->
+<div class="page" id="resultsPage">
+  <div class="results-page">
+    <div class="results-topbar" id="resultsTopbar">
+      <span class="results-query" id="resultsQuery"></span>
+    </div>
+    <div class="results-layout">
+      <div class="results-list" id="resultsList"></div>
+      <div class="results-map" id="resultsMap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FILTER MODAL ===== -->
+<div class="modal-overlay" id="filterModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Filtros</h2>
+      <button class="modal-close" onclick="closeFilters()">✕</button>
+    </div>
+    <div class="modal-body" id="filterBody"></div>
+    <div class="modal-footer">
+      <button class="btn-clear" onclick="clearFilters()">Limpar filtros</button>
+      <button class="btn-apply" onclick="applyFilters()">Mostrar resultados</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const categories = {
+  "🍽️ Gastronomia": {
+    subcategories: ["Japonês","Italiano","Chinês","Mexicano","Árabe","Francês","Brasileiro","Vegano","Vegetariano","Fast Food","Pizza","Hamburgueria","Frutos do Mar","Churrascaria","Confeitaria","Padaria","Cafeteria","Sorveteria","Açaí","Bar & Pub","Boteco","Doceria","Creperia","Tapiocaria","Marmitex","Comida Baiana","Comida Mineira"]
+  },
+  "🛍️ Compras": {
+    subcategories: ["Moda Feminina","Moda Masculina","Moda Infantil","Acessórios","Joalheria","Ótica","Calçados","Esportes","Brechó","Papelaria","Livraria","Floricultura","Loja de Presentes","Artesanato","Bijuterias","Lingerie","Loja de Brinquedos"]
+  },
+  "💊 Saúde": {
+    subcategories: ["Farmácia","Clínica Médica","Dentista","Psicólogo","Nutricionista","Fisioterapia","Laboratório","Hospital","Ortopedia","Dermatologia","Oftalmologia","Cardiologia","Pediatria","Ginecologia","Clínica Veterinária","Acupuntura","Homeopatia"]
+  },
+  "💇 Beleza & Bem-Estar": {
+    subcategories: ["Salão de Beleza","Barbearia","Manicure & Pedicure","Estética","Spa","Massagem","Depilação","Sobrancelha","Tatuagem","Piercing","Maquiagem","Cabeleireiro","Design de Unhas"]
+  },
+  "💪 Fitness & Esporte": {
+    subcategories: ["Academia","CrossFit","Yoga","Pilates","Natação","Artes Marciais","Dança","Box","Funcional","Musculação","Escalada","Spinning","Personal Trainer"]
+  },
+  "🏠 Serviços para Casa": {
+    subcategories: ["Eletricista","Encanador","Pintor","Chaveiro","Dedetização","Limpeza","Móveis Planejados","Decoração","Jardinagem","Ar-Condicionado","Mudanças","Lavanderia","Costura & Reforma"]
+  },
+  "🎓 Educação": {
+    subcategories: ["Escola de Idiomas","Música","Reforço Escolar","Faculdade","Curso Técnico","Pré-Vestibular","Dança","Artes","Informática","Culinária","Fotografia","Oratória","Preparatório Concurso"]
+  },
+  "⛪ Religião": {
+    subcategories: ["Católica","Evangélica","Judaica","Espírita","Budista","Islâmica","Umbanda","Candomblé","Matriz Africana","Ecumênico"]
+  },
+  "🔧 Automotivo": {
+    subcategories: ["Oficina Mecânica","Lava-Jato","Borracharia","Auto-Elétrica","Funilaria","Auto Peças","Estacionamento","Aluguel de Veículos","Moto Peças","Som Automotivo"]
+  },
+  "🐾 Pet": {
+    subcategories: ["Pet Shop","Veterinário","Banho & Tosa","Hotel Pet","Adestramento","Ração & Acessórios","Dog Walker","Creche Pet"]
+  },
+  "🏢 Serviços Profissionais": {
+    subcategories: ["Advogado","Contador","Corretor de Imóveis","Corretor de Seguros","Despachante","Cartório","Coworking","Gráfica","Tradutor","Fotógrafo","TI & Informática","Marketing Digital"]
+  },
+  "🎭 Lazer & Cultura": {
+    subcategories: ["Cinema","Teatro","Museu","Galeria de Arte","Casa de Shows","Boate","Karaoke","Biblioteca","Espaço Cultural","Parque","Praia","Quadra Esportiva"]
+  },
+  "🏨 Hospedagem": {
+    subcategories: ["Hotel","Hostel","Pousada","Airbnb","Apart-Hotel","Motel","Flat"]
+  },
+  "🚗 Transporte": {
+    subcategories: ["Táxi","Mototáxi","Bicicleta","Patinete","Transfer","Aluguel de Carro","Fretamento"]
+  }
+};
+
+// Mock results data
+const mockResults = {
+  "Restaurantes": [
+    { name: "Amir Copacabana", cat: "Restaurante Árabe", rating: 4.6, reviews: 2340, address: "R. Ronald de Carvalho, 55", emoji: "🧆", lat: -22.9668, lng: -43.1838 },
+    { name: "Azumi", cat: "Restaurante Japonês", rating: 4.7, reviews: 1890, address: "R. Min. Viveiros de Castro, 127", emoji: "🍣", lat: -22.9643, lng: -43.1762 },
+    { name: "Galeto Sat's", cat: "Restaurante Brasileiro", rating: 4.5, reviews: 3120, address: "R. Barata Ribeiro, 7", emoji: "🍗", lat: -22.9652, lng: -43.1779 },
+    { name: "Le Blé Noir", cat: "Creperia Francesa", rating: 4.4, reviews: 980, address: "R. Xavier da Silveira, 19", emoji: "🥞", lat: -22.9705, lng: -43.1815 },
+    { name: "Miam Miam", cat: "Restaurante Francês", rating: 4.8, reviews: 670, address: "R. Gen. Goes Monteiro, 34", emoji: "🇫🇷", lat: -22.9658, lng: -43.1791 },
+    { name: "La Trattoria", cat: "Restaurante Italiano", rating: 4.3, reviews: 2100, address: "Av. Atlântica, 1936", emoji: "🍝", lat: -22.9672, lng: -43.1802 },
+  ],
+  "Padarias": [
+    { name: "Confeitaria Colombo", cat: "Padaria & Confeitaria", rating: 4.7, reviews: 5200, address: "R. Gonçalves Dias, 32", emoji: "🎂", lat: -22.9640, lng: -43.1780 },
+    { name: "Bakers", cat: "Padaria Artesanal", rating: 4.5, reviews: 1340, address: "R. Santa Clara, 86", emoji: "🍞", lat: -22.9710, lng: -43.1825 },
+    { name: "Talho Capixaba", cat: "Padaria & Delicatessen", rating: 4.6, reviews: 3800, address: "Av. Atlântica, 1022", emoji: "🥖", lat: -22.9680, lng: -43.1810 },
+    { name: "La Boulangerie", cat: "Padaria Francesa", rating: 4.4, reviews: 890, address: "R. Barata Ribeiro, 505", emoji: "🥐", lat: -22.9665, lng: -43.1795 },
+  ],
+  default: [
+    { name: "Copa Center", cat: "Comércio Local", rating: 4.3, reviews: 450, address: "Av. N.S. de Copacabana, 680", emoji: "🏪", lat: -22.9670, lng: -43.1790 },
+    { name: "Galeria River", cat: "Shopping", rating: 4.1, reviews: 1200, address: "R. Francisco Otaviano, 67", emoji: "🛒", lat: -22.9720, lng: -43.1843 },
+    { name: "Copa Shopping Mall", cat: "Centro Comercial", rating: 4.0, reviews: 890, address: "Av. N.S. de Copacabana, 1100", emoji: "🏬", lat: -22.9690, lng: -43.1800 },
+    { name: "Mercadão de Copa", cat: "Mercado", rating: 4.4, reviews: 2300, address: "R. Siqueira Campos, 143", emoji: "🛍️", lat: -22.9662, lng: -43.1785 },
+    { name: "Loja Tropical", cat: "Loja", rating: 4.2, reviews: 340, address: "R. Figueiredo Magalhães, 414", emoji: "🌴", lat: -22.9655, lng: -43.1770 },
+  ]
+};
+
+// ===== STATE =====
+let selectedFilters = new Set();
+let currentQuery = '';
+
+// ===== NAVIGATION =====
+function goHome() {
+  document.getElementById('homePage').classList.add('active');
+  document.getElementById('resultsPage').classList.remove('active');
+  selectedFilters.clear();
+  updateFilterBtn();
+}
+
+// ===== SEARCH =====
+function doSearch() {
+  const input = document.getElementById('searchInput');
+  currentQuery = input.value.trim() || 'Estabelecimentos';
+  showResults(currentQuery);
+}
+
+function quickSearch(term) {
+  document.getElementById('searchInput').value = term;
+  currentQuery = term;
+  showResults(term);
+}
+
+function showResults(query) {
+  document.getElementById('homePage').classList.remove('active');
+  document.getElementById('resultsPage').classList.add('active');
+
+  // Set query display
+  const queryEl = document.getElementById('resultsQuery');
+  queryEl.textContent = `"${query}" em Copacabana`;
+
+  // Active filter chips in topbar
+  const topbar = document.getElementById('resultsTopbar');
+  topbar.querySelectorAll('.active-filter-chip').forEach(el => el.remove());
+  selectedFilters.forEach(f => {
+    const chip = document.createElement('div');
+    chip.className = 'active-filter-chip';
+    chip.innerHTML = `${f} <span class="remove" onclick="removeFilter('${f}')">✕</span>`;
+    topbar.appendChild(chip);
+  });
+
+  // Build results list
+  const results = mockResults[query] || mockResults.default;
+  const listEl = document.getElementById('resultsList');
+  listEl.innerHTML = `
+    <div class="results-header">
+      <h2>${query}</h2>
+      <span>${results.length} lugares encontrados</span>
+    </div>
+  `;
+  results.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.onclick = () => highlightCard(card);
+    card.innerHTML = `
+      <div class="result-img">${r.emoji}</div>
+      <div class="result-info">
+        <span class="result-category">${r.cat}</span>
+        <h3>${r.name}</h3>
+        <div class="result-rating">
+          <span class="star">★</span> ${r.rating}
+          <span class="count">(${r.reviews.toLocaleString('pt-BR')})</span>
+        </div>
+        <div class="result-address">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${r.address}
+        </div>
+      </div>
+      <div class="result-number">${i + 1}</div>
+    `;
+    listEl.appendChild(card);
+  });
+
+  // Build Google Maps embed
+  const searchQuery = encodeURIComponent(`${query} Copacabana Rio de Janeiro`);
+  const mapEl = document.getElementById('resultsMap');
+  mapEl.innerHTML = `<iframe src="https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${searchQuery}&center=-22.9685,-43.1810&zoom=15" allowfullscreen loading="lazy"></iframe>`;
+}
+
+function highlightCard(card) {
+  document.querySelectorAll('.result-card').forEach(c => c.classList.remove('highlighted'));
+  card.classList.add('highlighted');
+}
+
+function removeFilter(name) {
+  selectedFilters.delete(name);
+  showResults(currentQuery);
+  updateFilterBtn();
+}
+
+// ===== FILTERS =====
+function openFilters() {
+  const modal = document.getElementById('filterModal');
+  modal.classList.add('active');
+  buildFilterUI();
+}
+
+function closeFilters() {
+  document.getElementById('filterModal').classList.remove('active');
+}
+
+function buildFilterUI() {
+  const body = document.getElementById('filterBody');
+  body.innerHTML = '';
+
+  Object.entries(categories).forEach(([catName, catData]) => {
+    const section = document.createElement('div');
+    section.className = 'filter-section';
+
+    const isOpen = catData.subcategories.some(s => selectedFilters.has(s));
+
+    section.innerHTML = `
+      <div class="filter-section-header" onclick="toggleSection(this)">
+        <h3><span class="emoji">${catName.split(' ')[0]}</span> ${catName.split(' ').slice(1).join(' ')}</h3>
+        <span class="toggle-arrow ${isOpen ? 'open' : ''}">▼</span>
+      </div>
+      <div class="filter-options ${isOpen ? 'open' : ''}">
+        ${catData.subcategories.map(sub => `
+          <div class="filter-tag ${selectedFilters.has(sub) ? 'selected' : ''}" onclick="toggleFilter(this, '${sub}')">${sub}</div>
+        `).join('')}
+      </div>
+    `;
+    body.appendChild(section);
+  });
+}
+
+function toggleSection(header) {
+  const arrow = header.querySelector('.toggle-arrow');
+  const options = header.nextElementSibling;
+  arrow.classList.toggle('open');
+  options.classList.toggle('open');
+}
+
+function toggleFilter(el, name) {
+  el.classList.toggle('selected');
+  if (selectedFilters.has(name)) {
+    selectedFilters.delete(name);
+  } else {
+    selectedFilters.add(name);
+  }
+  updateFilterBtn();
+}
+
+function clearFilters() {
+  selectedFilters.clear();
+  buildFilterUI();
+  updateFilterBtn();
+}
+
+function applyFilters() {
+  closeFilters();
+  if (currentQuery) {
+    showResults(currentQuery);
+  }
+}
+
+function updateFilterBtn() {
+  const btn = document.getElementById('filterBtn');
+  const count = selectedFilters.size;
+  if (count > 0) {
+    btn.classList.add('has-filters');
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="currentColor"/></svg>
+      Filtros
+      <span class="filter-count">${count}</span>
+    `;
+  } else {
+    btn.classList.remove('has-filters');
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="currentColor"/></svg>
+      Filtros
+    `;
+  }
+}
+
+// ===== NAVBAR SCROLL =====
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ===== CLOSE MODAL ON OVERLAY CLICK =====
+document.getElementById('filterModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeFilters();
+});
+</script>
 </body>
 </html>
