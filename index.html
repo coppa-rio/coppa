@@ -1,893 +1,1299 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>coppa</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #FAFAF8;
-    --card: #FFFFFF;
-    --text: #1A1A1A;
-    --text-soft: #6B6B6B;
-    --text-muted: #9E9E9E;
-    --accent: #FF385C;
-    --accent-hover: #E0294A;
-    --accent-light: #FFF0F3;
-    --border: #EBEBEB;
-    --border-focus: #222222;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-    --shadow-xl: 0 16px 48px rgba(0,0,0,0.14);
-    --radius-sm: 10px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-full: 999px;
-    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+import { useState, useRef, useEffect, useCallback } from "react";
+
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const CATEGORIES = [
+  {
+    name: "Restaurantes",
+    icon: "🍽️",
+    subs: [
+      { group: "Cozinha", items: ["Brasileira", "Japonesa", "Italiana", "Portuguesa", "Árabe", "Mexicana", "Chinesa", "Francesa"] },
+      { group: "Tipo", items: ["Buffet", "À la carte", "Self-service", "Rodízio", "Fast food", "Food truck"] },
+      { group: "Ocasião", items: ["Romântico", "Família", "Negócios", "Casual", "Happy hour"] },
+    ],
+  },
+  {
+    name: "Cafés & Padarias",
+    icon: "☕",
+    subs: [
+      { group: "Cafeterias", items: ["Café especial", "Café coado", "Espresso bar", "Café da manhã"] },
+      { group: "Padarias", items: ["Pão artesanal", "Confeitaria", "Salgados", "Doces finos"] },
+      { group: "Mais", items: ["Açaí", "Sucos naturais", "Sorveteria", "Casa de chá"] },
+    ],
+  },
+  {
+    name: "Mercados",
+    icon: "🛒",
+    subs: [
+      { group: "Tipo", items: ["Supermercado", "Minimercado", "Hortifrúti", "Empório", "Atacarejo"] },
+      { group: "Especialidade", items: ["Orgânicos", "Importados", "Bebidas", "Frios e laticínios"] },
+      { group: "Conveniência", items: ["24 horas", "Delivery", "Adega", "Produtos naturais"] },
+    ],
+  },
+  {
+    name: "Saúde & Bem-estar",
+    icon: "💊",
+    subs: [
+      { group: "Farmácia", items: ["Drogaria", "Manipulação", "Homeopatia", "Produtos naturais"] },
+      { group: "Corpo", items: ["Academia", "Pilates", "Yoga", "CrossFit", "Natação"] },
+      { group: "Beleza", items: ["Salão", "Barbearia", "Estética", "Spa", "Manicure"] },
+    ],
+  },
+  {
+    name: "Moda & Acessórios",
+    icon: "👗",
+    subs: [
+      { group: "Roupas", items: ["Feminina", "Masculina", "Infantil", "Plus size", "Moda praia"] },
+      { group: "Acessórios", items: ["Joalheria", "Bijuteria", "Bolsas", "Relógios", "Óculos"] },
+      { group: "Calçados", items: ["Tênis", "Sapatos", "Sandálias", "Chinelos"] },
+    ],
+  },
+  {
+    name: "Serviços",
+    icon: "🔧",
+    subs: [
+      { group: "Casa", items: ["Eletricista", "Encanador", "Pintor", "Chaveiro", "Limpeza"] },
+      { group: "Pet", items: ["Pet shop", "Veterinário", "Banho e tosa", "Dog walker"] },
+      { group: "Diversos", items: ["Lavanderia", "Costura", "Sapateiro", "Gráfica", "Cartório"] },
+    ],
+  },
+  {
+    name: "Educação",
+    icon: "📚",
+    subs: [
+      { group: "Ensino", items: ["Idiomas", "Reforço escolar", "Pré-vestibular", "Informática"] },
+      { group: "Cultura", items: ["Livraria", "Papelaria", "Escola de música", "Escola de dança"] },
+      { group: "Kids", items: ["Creche", "Escola infantil", "Brinquedoteca", "Atividades extracurriculares"] },
+    ],
+  },
+  {
+    name: "Vida Noturna",
+    icon: "🍸",
+    subs: [
+      { group: "Bares", items: ["Bar de praia", "Boteco", "Rooftop", "Pub", "Wine bar"] },
+      { group: "Baladas", items: ["Sertanejo", "Funk", "Eletrônica", "Pagode", "Samba"] },
+      { group: "Diversão", items: ["Karaokê", "Bilhar", "Boliche", "Fliperamas"] },
+    ],
+  },
+];
+
+const STREET_NAMES = [
+  "Av. Atlântica", "R. Barata Ribeiro", "R. Santa Clara", "Av. Nossa Sra. de Copacabana",
+  "R. Figueiredo Magalhães", "R. Siqueira Campos", "R. Tonelero", "R. Ministro Viveiros de Castro",
+  "R. Domingos Ferreira", "R. Bolívar", "R. Duvivier", "R. Xavier da Silveira",
+  "R. Paula Freitas", "R. Hilário de Gouveia", "R. Constante Ramos", "R. Pompeu Loureiro",
+];
+
+const FIRST_NAMES = [
+  "Cantina da", "Sabor do", "Empório", "Bistrô", "Café", "Padaria", "Mercado",
+  "Ateliê", "Espaço", "Ponto do", "Casa da", "Recanto do", "Boteco do",
+  "Delícias da", "Canto do", "Armazém",
+];
+
+const LAST_NAMES = [
+  "Dona Maria", "Seu Zé", "Copa", "Praia", "Leme", "Atlântica", "Mar",
+  "Sol", "Areia", "Carioca", "Ipanema", "Bossa", "Harmonia", "Sabor",
+  "Vovó", "Mineiro",
+];
+
+function seededRandom(seed) {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+function generateListings() {
+  const rng = seededRandom(42);
+  const catIcons = ["🍽️", "☕", "🛒", "💊", "👗", "🔧", "📚", "🍸"];
+  const catNames = CATEGORIES.map((c) => c.name);
+  const listings = [];
+  const COPA_CENTER = { lat: -22.9711, lng: -43.1822 };
+
+  for (let i = 0; i < 48; i++) {
+    const catIdx = Math.floor(rng() * catNames.length);
+    const cat = CATEGORIES[catIdx];
+    const subGroup = cat.subs[Math.floor(rng() * cat.subs.length)];
+    const subItem = subGroup.items[Math.floor(rng() * subGroup.items.length)];
+    const rating = (3.5 + rng() * 1.5).toFixed(1);
+    const reviews = Math.floor(10 + rng() * 490);
+    const street = STREET_NAMES[Math.floor(rng() * STREET_NAMES.length)];
+    const num = Math.floor(100 + rng() * 2000);
+    const firstName = FIRST_NAMES[Math.floor(rng() * FIRST_NAMES.length)];
+    const lastName = LAST_NAMES[Math.floor(rng() * LAST_NAMES.length)];
+    const hue = Math.floor(rng() * 360);
+    const lat = COPA_CENTER.lat + (rng() - 0.5) * 0.018;
+    const lng = COPA_CENTER.lng + (rng() - 0.5) * 0.012;
+
+    listings.push({
+      id: i,
+      name: `${firstName} ${lastName}`,
+      category: catNames[catIdx],
+      subcategory: subItem,
+      icon: catIcons[catIdx],
+      rating: parseFloat(rating),
+      reviews,
+      address: `${street}, ${num} - Copacabana`,
+      hue,
+      lat,
+      lng,
+      open: rng() > 0.2,
+      whatsapp: true,
+    });
+  }
+  return listings;
+}
+
+const ALL_LISTINGS = generateListings();
+
+// ─── COLORS / THEME ──────────────────────────────────────────────────────────
+
+const T = {
+  bg: "#FAFAF8",
+  surface: "#FFFFFF",
+  text: "#1A1A1A",
+  textMuted: "#6B6B6B",
+  textLight: "#999999",
+  brand: "#00A86B",
+  brandDark: "#008F5A",
+  brandLight: "#E6F7EF",
+  accent: "#FF6B35",
+  border: "#E8E8E4",
+  borderLight: "#F0F0EC",
+  shadow: "0 2px 12px rgba(0,0,0,0.08)",
+  shadowHover: "0 8px 28px rgba(0,0,0,0.12)",
+  megaBg: "#FFFFFF",
+  headerBg: "#FFFFFF",
+  topBarBg: "#00A86B",
+  radius: "14px",
+  radiusSm: "8px",
+};
+
+// ─── STYLES (CSS-in-JS) ─────────────────────────────────────────────────────
+
+const styles = {
+  app: {
+    fontFamily: "'DM Sans', 'Nunito', sans-serif",
+    background: T.bg,
+    color: T.text,
+    minHeight: "100vh",
+    position: "relative",
+  },
+
+  // TOP BAR
+  topBar: {
+    background: T.topBarBg,
+    padding: "10px 0",
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+  },
+  topBarInner: {
+    maxWidth: 1280,
+    margin: "0 auto",
+    padding: "0 24px",
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+  },
+  logo: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    color: "#fff",
+    fontWeight: 800,
+    fontSize: 22,
+    letterSpacing: "-0.5px",
+    textDecoration: "none",
+    flexShrink: 0,
+    cursor: "pointer",
+  },
+  logoSub: {
+    fontSize: 10,
+    fontWeight: 500,
+    opacity: 0.85,
+    letterSpacing: "0.5px",
+    textTransform: "uppercase",
+    marginTop: -2,
+  },
+  searchWrap: {
+    flex: 1,
+    maxWidth: 600,
+    position: "relative",
+  },
+  searchInput: {
+    width: "100%",
+    padding: "10px 44px 10px 16px",
+    border: "none",
+    borderRadius: 50,
+    fontSize: 14,
+    background: "rgba(255,255,255,0.95)",
+    color: T.text,
+    outline: "none",
+    boxSizing: "border-box",
+  },
+  searchIcon: {
+    position: "absolute",
+    right: 14,
+    top: "50%",
+    transform: "translateY(-50%)",
+    color: T.textMuted,
+    fontSize: 16,
+    pointerEvents: "none",
+  },
+  topBarActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    flexShrink: 0,
+  },
+  topBarBtn: {
+    background: "rgba(255,255,255,0.18)",
+    border: "none",
+    borderRadius: 50,
+    padding: "8px 16px",
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    transition: "background 0.2s",
+  },
+
+  // CATEGORY BAR
+  catBar: {
+    background: T.headerBg,
+    borderBottom: `1px solid ${T.border}`,
+    position: "sticky",
+    top: 48,
+    zIndex: 999,
+  },
+  catBarInner: {
+    maxWidth: 1280,
+    margin: "0 auto",
+    padding: "0 24px",
+    display: "flex",
+    alignItems: "stretch",
+    gap: 0,
+    overflowX: "auto",
+  },
+  catItem: (active) => ({
+    padding: "14px 18px",
+    fontSize: 13.5,
+    fontWeight: 600,
+    color: active ? T.brand : T.text,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    borderBottom: active ? `3px solid ${T.brand}` : "3px solid transparent",
+    transition: "all 0.2s",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    position: "relative",
+    userSelect: "none",
+    background: "transparent",
+    borderTop: "none",
+    borderLeft: "none",
+    borderRight: "none",
+  }),
+
+  // MEGA DROPDOWN
+  megaOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0,0,0,0.15)",
+    zIndex: 998,
+  },
+  megaDrop: {
+    position: "absolute",
+    top: "100%",
+    left: 0,
+    right: 0,
+    background: T.megaBg,
+    borderBottom: `1px solid ${T.border}`,
+    boxShadow: "0 16px 48px rgba(0,0,0,0.1)",
+    zIndex: 999,
+    animation: "megaIn 0.2s ease",
+  },
+  megaInner: {
+    maxWidth: 1280,
+    margin: "0 auto",
+    padding: "28px 24px 32px",
+    display: "flex",
+    gap: 48,
+  },
+  megaGroup: {
+    flex: 1,
+    minWidth: 160,
+  },
+  megaGroupTitle: {
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    color: T.brand,
+    marginBottom: 14,
+  },
+  megaLink: {
+    display: "block",
+    fontSize: 13.5,
+    color: T.text,
+    padding: "5px 0",
+    cursor: "pointer",
+    transition: "color 0.15s",
+    textDecoration: "none",
+  },
+
+  // BODY
+  body: {
+    maxWidth: 1280,
+    margin: "0 auto",
+    padding: "32px 24px",
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 800,
+    marginBottom: 4,
+    letterSpacing: "-0.5px",
+  },
+  sectionSub: {
+    fontSize: 14,
+    color: T.textMuted,
+    marginBottom: 24,
+  },
+
+  // GRID
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
+    gap: 24,
+  },
+
+  // CARD
+  card: {
+    background: T.surface,
+    borderRadius: T.radius,
+    overflow: "hidden",
+    cursor: "pointer",
+    transition: "box-shadow 0.25s, transform 0.25s",
+    border: `1px solid ${T.borderLight}`,
+  },
+  cardThumb: (hue) => ({
+    height: 180,
+    background: `linear-gradient(135deg, hsl(${hue},55%,65%), hsl(${(hue + 40) % 360},45%,55%))`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 52,
+    position: "relative",
+  }),
+  cardBadge: (open) => ({
+    position: "absolute",
+    top: 12,
+    left: 12,
+    background: open ? "rgba(0,168,107,0.92)" : "rgba(180,40,40,0.88)",
+    color: "#fff",
+    fontSize: 10.5,
+    fontWeight: 700,
+    padding: "4px 10px",
+    borderRadius: 50,
+    letterSpacing: "0.3px",
+  }),
+  cardWhatsapp: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    background: "rgba(37,211,102,0.92)",
+    color: "#fff",
+    fontSize: 10.5,
+    fontWeight: 700,
+    padding: "4px 10px",
+    borderRadius: 50,
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
+  },
+  cardBody: {
+    padding: "14px 16px 16px",
+  },
+  cardName: {
+    fontSize: 15,
+    fontWeight: 700,
+    marginBottom: 2,
+    lineHeight: 1.3,
+  },
+  cardCat: {
+    fontSize: 12,
+    color: T.textMuted,
+    marginBottom: 8,
+  },
+  cardBottom: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardRating: {
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  cardReviews: {
+    fontSize: 12,
+    color: T.textLight,
+  },
+  cardAddress: {
+    fontSize: 11.5,
+    color: T.textLight,
+    marginTop: 8,
+    lineHeight: 1.4,
+  },
+
+  // VER MAIS
+  verMaisWrap: {
+    textAlign: "center",
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  verMaisBtn: {
+    background: T.text,
+    color: "#fff",
+    border: "none",
+    borderRadius: 50,
+    padding: "14px 48px",
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: "pointer",
+    transition: "transform 0.2s, box-shadow 0.2s",
+    letterSpacing: "0.3px",
+  },
+
+  // EXPLORE PAGE
+  exploreContainer: {
+    display: "flex",
+    height: "calc(100vh - 49px)",
+    overflow: "hidden",
+  },
+  exploreList: {
+    flex: "0 0 55%",
+    overflowY: "auto",
+    padding: "20px 24px",
+    background: T.bg,
+  },
+  exploreMap: {
+    flex: 1,
+    background: "#E8EDE4",
+    position: "relative",
+    overflow: "hidden",
+  },
+  exploreCard: {
+    display: "flex",
+    gap: 16,
+    padding: "16px",
+    background: T.surface,
+    borderRadius: T.radiusSm,
+    marginBottom: 12,
+    border: `1px solid ${T.borderLight}`,
+    cursor: "pointer",
+    transition: "box-shadow 0.2s",
+  },
+  exploreCardThumb: (hue) => ({
+    width: 110,
+    height: 90,
+    borderRadius: T.radiusSm,
+    background: `linear-gradient(135deg, hsl(${hue},55%,65%), hsl(${(hue + 40) % 360},45%,55%))`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 30,
+    flexShrink: 0,
+  }),
+  exploreCardBody: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+
+  // MAP
+  mapSvg: {
+    width: "100%",
+    height: "100%",
+  },
+  mapPin: {
+    cursor: "pointer",
+    transition: "transform 0.2s",
+  },
+  mapTooltip: {
+    position: "absolute",
+    background: T.surface,
+    padding: "10px 14px",
+    borderRadius: T.radiusSm,
+    boxShadow: T.shadowHover,
+    fontSize: 12,
+    zIndex: 10,
+    pointerEvents: "none",
+    maxWidth: 200,
+    border: `1px solid ${T.border}`,
+  },
+
+  // BACK BUTTON
+  backBtn: {
+    background: "none",
+    border: `1px solid ${T.border}`,
+    borderRadius: 50,
+    padding: "8px 20px",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    color: T.text,
+    transition: "background 0.2s",
+    marginBottom: 16,
+  },
+
+  filterBar: {
+    display: "flex",
+    gap: 8,
+    marginBottom: 16,
+    flexWrap: "wrap",
+  },
+  filterChip: (active) => ({
+    padding: "6px 14px",
+    borderRadius: 50,
+    fontSize: 12,
+    fontWeight: 600,
+    border: active ? `2px solid ${T.brand}` : `1px solid ${T.border}`,
+    background: active ? T.brandLight : T.surface,
+    color: active ? T.brandDark : T.textMuted,
+    cursor: "pointer",
+    transition: "all 0.15s",
+  }),
+};
+
+// ─── KEYFRAMES ───────────────────────────────────────────────────────────────
+
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @keyframes megaIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    
+    .copa-card:hover {
+      box-shadow: ${T.shadowHover} !important;
+      transform: translateY(-4px);
+    }
+    
+    .mega-link:hover { color: ${T.brand} !important; }
+    
+    .explore-card:hover {
+      box-shadow: ${T.shadow} !important;
+    }
+    
+    .top-btn:hover { background: rgba(255,255,255,0.3) !important; }
+    .ver-mais-btn:hover { transform: scale(1.04); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+    .back-btn:hover { background: ${T.borderLight} !important; }
+    .filter-chip:hover { border-color: ${T.brand} !important; }
+  `}</style>
+);
+
+// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+
+function Star({ filled }) {
+  return (
+    <span style={{ color: filled ? "#FFB800" : "#DDD", fontSize: 13 }}>★</span>
+  );
+}
+
+function RatingStars({ rating }) {
+  return (
+    <span style={{ display: "inline-flex", gap: 1 }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star key={i} filled={i <= Math.round(rating)} />
+      ))}
+    </span>
+  );
+}
+
+function ListingCard({ listing, onClick, delay = 0 }) {
+  return (
+    <div
+      className="copa-card"
+      style={{ ...styles.card, animation: `fadeUp 0.4s ease ${delay}ms both` }}
+      onClick={onClick}
+    >
+      <div style={styles.cardThumb(listing.hue)}>
+        <span>{listing.icon}</span>
+        <div style={styles.cardBadge(listing.open)}>
+          {listing.open ? "Aberto" : "Fechado"}
+        </div>
+        {listing.whatsapp && (
+          <div style={styles.cardWhatsapp}>
+            <span>💬</span> Pedir
+          </div>
+        )}
+      </div>
+      <div style={styles.cardBody}>
+        <div style={styles.cardName}>{listing.name}</div>
+        <div style={styles.cardCat}>
+          {listing.category} · {listing.subcategory}
+        </div>
+        <div style={styles.cardBottom}>
+          <div style={styles.cardRating}>
+            <RatingStars rating={listing.rating} />
+            <span style={{ marginLeft: 2 }}>{listing.rating}</span>
+          </div>
+          <span style={styles.cardReviews}>{listing.reviews} avaliações</span>
+        </div>
+        <div style={styles.cardAddress}>📍 {listing.address}</div>
+      </div>
+    </div>
+  );
+}
+
+function MiniMap({ listings, hoveredId, onHover, onLeave, mapRef }) {
+  const LAT_MIN = -22.983;
+  const LAT_MAX = -22.960;
+  const LNG_MIN = -43.190;
+  const LNG_MAX = -43.175;
+
+  const toX = (lng) => ((lng - LNG_MIN) / (LNG_MAX - LNG_MIN)) * 100;
+  const toY = (lat) => ((LAT_MAX - lat) / (LAT_MAX - LAT_MIN)) * 100;
+
+  return (
+    <div ref={mapRef} style={{ width: "100%", height: "100%", position: "relative" }}>
+      {/* Map background */}
+      <svg style={styles.mapSvg} viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
+            <path d="M 5 0 L 0 0 0 5" fill="none" stroke="#d0d8cc" strokeWidth="0.15" />
+          </pattern>
+          <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#B8D4E3" />
+            <stop offset="100%" stopColor="#A3C4D9" />
+          </linearGradient>
+        </defs>
+        <rect width="100" height="100" fill="url(#ocean)" />
+        {/* Copa land mass approximation */}
+        <path
+          d="M 0,15 Q 20,10 50,18 Q 80,25 100,20 L 100,100 L 0,100 Z"
+          fill="#E8EDE4"
+        />
+        <path
+          d="M 0,15 Q 20,10 50,18 Q 80,25 100,20 L 100,100 L 0,100 Z"
+          fill="url(#grid)"
+        />
+        {/* Beach line */}
+        <path
+          d="M 0,15 Q 20,10 50,18 Q 80,25 100,20"
+          fill="none"
+          stroke="#F5E6C8"
+          strokeWidth="1.5"
+        />
+        {/* Streets */}
+        {[30, 45, 55, 65, 75, 85].map((y) => (
+          <line key={`h${y}`} x1="0" y1={y} x2="100" y2={y} stroke="#D5DDD0" strokeWidth="0.3" />
+        ))}
+        {[15, 30, 45, 60, 75, 90].map((x) => (
+          <line key={`v${x}`} x1={x} y1="20" x2={x} y2="100" stroke="#D5DDD0" strokeWidth="0.3" />
+        ))}
+        {/* Label */}
+        <text x="50" y="8" textAnchor="middle" fontSize="3.5" fill="#7A9BBD" fontWeight="600" fontFamily="DM Sans">
+          Praia de Copacabana
+        </text>
+        <text x="50" y="50" textAnchor="middle" fontSize="2.5" fill="#8B9B82" fontWeight="500" fontFamily="DM Sans" opacity="0.6">
+          COPACABANA
+        </text>
+      </svg>
+      {/* Pins */}
+      {listings.map((l) => {
+        const x = toX(l.lng);
+        const y = toY(l.lat);
+        const isHovered = hoveredId === l.id;
+        if (x < 0 || x > 100 || y < 0 || y > 100) return null;
+        return (
+          <div
+            key={l.id}
+            onMouseEnter={() => onHover(l.id)}
+            onMouseLeave={onLeave}
+            style={{
+              position: "absolute",
+              left: `${x}%`,
+              top: `${y}%`,
+              transform: isHovered ? "translate(-50%,-100%) scale(1.3)" : "translate(-50%,-100%) scale(1)",
+              transition: "transform 0.2s",
+              zIndex: isHovered ? 5 : 1,
+              cursor: "pointer",
+            }}
+          >
+            <div
+              style={{
+                width: isHovered ? 30 : 22,
+                height: isHovered ? 30 : 22,
+                borderRadius: "50% 50% 50% 0",
+                background: isHovered ? T.accent : T.brand,
+                transform: "rotate(-45deg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: isHovered ? "0 3px 10px rgba(0,0,0,0.3)" : "0 2px 6px rgba(0,0,0,0.2)",
+                transition: "all 0.2s",
+              }}
+            >
+              <span style={{ transform: "rotate(45deg)", fontSize: isHovered ? 13 : 10 }}>{l.icon}</span>
+            </div>
+            {isHovered && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "calc(100% + 8px)",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: T.surface,
+                  padding: "8px 12px",
+                  borderRadius: T.radiusSm,
+                  boxShadow: T.shadowHover,
+                  whiteSpace: "nowrap",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: `1px solid ${T.border}`,
+                  pointerEvents: "none",
+                }}
+              >
+                <div>{l.name}</div>
+                <div style={{ fontSize: 10, color: T.textMuted, fontWeight: 400, marginTop: 2 }}>
+                  ⭐ {l.rating} · {l.subcategory}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────────────────────
+
+export default function CopaCommerce() {
+  const [page, setPage] = useState("home"); // "home" | "explore"
+  const [activeCat, setActiveCat] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState(null);
+  const [hoveredPin, setHoveredPin] = useState(null);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const catBarRef = useRef(null);
+  const megaTimeout = useRef(null);
+  const mapRef = useRef(null);
+
+  const handleCatEnter = useCallback((idx) => {
+    clearTimeout(megaTimeout.current);
+    setActiveCat(idx);
+  }, []);
+
+  const handleCatLeave = useCallback(() => {
+    megaTimeout.current = setTimeout(() => setActiveCat(null), 200);
+  }, []);
+
+  const handleMegaEnter = useCallback(() => {
+    clearTimeout(megaTimeout.current);
+  }, []);
+
+  const handleMegaLeave = useCallback(() => {
+    megaTimeout.current = setTimeout(() => setActiveCat(null), 150);
+  }, []);
+
+  const filtered = ALL_LISTINGS.filter((l) => {
+    const matchSearch =
+      !search ||
+      l.name.toLowerCase().includes(search.toLowerCase()) ||
+      l.category.toLowerCase().includes(search.toLowerCase()) ||
+      l.subcategory.toLowerCase().includes(search.toLowerCase()) ||
+      l.address.toLowerCase().includes(search.toLowerCase());
+    const matchCat = !filterCat || l.category === filterCat;
+    return matchSearch && matchCat;
+  });
+
+  const homeListings = filtered.slice(0, 12);
+
+  // ── LISTING DETAIL MODAL ──
+  const DetailModal = ({ listing, onClose }) => {
+    if (!listing) return null;
+    return (
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.5)",
+          zIndex: 2000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+        }}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: T.surface,
+            borderRadius: T.radius,
+            maxWidth: 480,
+            width: "100%",
+            overflow: "hidden",
+            animation: "fadeUp 0.3s ease",
+          }}
+        >
+          <div style={styles.cardThumb(listing.hue)}>
+            <span style={{ fontSize: 72 }}>{listing.icon}</span>
+            <div style={styles.cardBadge(listing.open)}>
+              {listing.open ? "Aberto agora" : "Fechado"}
+            </div>
+          </div>
+          <div style={{ padding: "24px" }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{listing.name}</h2>
+            <p style={{ fontSize: 13, color: T.textMuted, marginBottom: 16 }}>
+              {listing.category} · {listing.subcategory}
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <RatingStars rating={listing.rating} />
+              <span style={{ fontSize: 14, fontWeight: 700 }}>{listing.rating}</span>
+              <span style={{ fontSize: 12, color: T.textLight }}>({listing.reviews} avaliações)</span>
+            </div>
+            <p style={{ fontSize: 13, color: T.textMuted, marginBottom: 20 }}>📍 {listing.address}</p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                style={{
+                  flex: 1,
+                  background: "#25D366",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 50,
+                  padding: "12px",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                💬 Pedir via WhatsApp
+              </button>
+              <button
+                onClick={onClose}
+                style={{
+                  background: T.bg,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 50,
+                  padding: "12px 24px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  color: T.text,
+                }}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ── HOME PAGE ──
+  if (page === "home") {
+    return (
+      <div style={styles.app}>
+        <GlobalStyles />
+
+        {/* TOP BAR */}
+        <div style={styles.topBar}>
+          <div style={styles.topBarInner}>
+            <div style={styles.logo} onClick={() => { setPage("home"); setFilterCat(null); setSearch(""); }}>
+              <span style={{ fontSize: 26 }}>🏪</span>
+              <div>
+                <div>CopaCommerce</div>
+                <div style={styles.logoSub}>Copacabana · Rio de Janeiro</div>
+              </div>
+            </div>
+            <div style={styles.searchWrap}>
+              <input
+                style={styles.searchInput}
+                placeholder="Buscar estabelecimentos, categorias, endereços..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <span style={styles.searchIcon}>🔍</span>
+            </div>
+            <div style={styles.topBarActions}>
+              <button className="top-btn" style={styles.topBarBtn}>
+                📍 Copacabana
+              </button>
+              <button className="top-btn" style={styles.topBarBtn}>
+                Entrar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* CATEGORY BAR */}
+        <div style={styles.catBar} ref={catBarRef}>
+          <div style={styles.catBarInner}>
+            {CATEGORIES.map((cat, idx) => (
+              <button
+                key={cat.name}
+                style={styles.catItem(activeCat === idx || filterCat === cat.name)}
+                onMouseEnter={() => handleCatEnter(idx)}
+                onMouseLeave={handleCatLeave}
+                onClick={() => {
+                  setFilterCat(filterCat === cat.name ? null : cat.name);
+                  setActiveCat(null);
+                }}
+              >
+                <span>{cat.icon}</span>
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* MEGA DROPDOWN */}
+          {activeCat !== null && (
+            <div
+              style={styles.megaDrop}
+              onMouseEnter={handleMegaEnter}
+              onMouseLeave={handleMegaLeave}
+            >
+              <div style={styles.megaInner}>
+                {CATEGORIES[activeCat].subs.map((group) => (
+                  <div key={group.group} style={styles.megaGroup}>
+                    <div style={styles.megaGroupTitle}>{group.group}</div>
+                    {group.items.map((item) => (
+                      <a
+                        key={item}
+                        className="mega-link"
+                        style={styles.megaLink}
+                        onClick={() => {
+                          setSearch(item);
+                          setFilterCat(CATEGORIES[activeCat].name);
+                          setActiveCat(null);
+                        }}
+                      >
+                        {item}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {activeCat !== null && (
+          <div style={styles.megaOverlay} onClick={() => setActiveCat(null)} />
+        )}
+
+        {/* BODY */}
+        <div style={styles.body}>
+          <div style={styles.sectionTitle}>
+            {filterCat ? `${filterCat} em Copacabana` : "Descubra Copacabana"}
+          </div>
+          <div style={styles.sectionSub}>
+            {filtered.length} estabelecimentos
+            {filterCat ? ` · ` : " mapeados · "}
+            {filterCat && (
+              <span
+                onClick={() => setFilterCat(null)}
+                style={{ color: T.brand, cursor: "pointer", fontWeight: 600 }}
+              >
+                Limpar filtro
+              </span>
+            )}
+            {!filterCat && "Comissão zero · Pedidos via WhatsApp"}
+          </div>
+
+          <div style={styles.grid}>
+            {homeListings.map((listing, i) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                delay={i * 50}
+                onClick={() => setSelectedListing(listing)}
+              />
+            ))}
+          </div>
+
+          {filtered.length > 12 && (
+            <div style={styles.verMaisWrap}>
+              <button
+                className="ver-mais-btn"
+                style={styles.verMaisBtn}
+                onClick={() => setPage("explore")}
+              >
+                Ver todos os {filtered.length} estabelecimentos →
+              </button>
+            </div>
+          )}
+
+          {/* BANNER */}
+          <div
+            style={{
+              marginTop: 48,
+              background: `linear-gradient(135deg, ${T.brand}, #006B45)`,
+              borderRadius: T.radius,
+              padding: "36px 40px",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 24,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 6 }}>
+                Tem um negócio em Copacabana?
+              </div>
+              <div style={{ fontSize: 14, opacity: 0.9, maxWidth: 400 }}>
+                Cadastre-se gratuitamente. Sem comissões, sem taxas. Seus clientes pedem direto no seu WhatsApp.
+              </div>
+            </div>
+            <button
+              style={{
+                background: "#fff",
+                color: T.brandDark,
+                border: "none",
+                borderRadius: 50,
+                padding: "14px 32px",
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            >
+              Cadastrar meu negócio
+            </button>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <footer
+          style={{
+            marginTop: 40,
+            borderTop: `1px solid ${T.border}`,
+            padding: "32px 24px",
+            maxWidth: 1280,
+            margin: "40px auto 0",
+            display: "flex",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 24,
+            fontSize: 13,
+            color: T.textMuted,
+          }}
+        >
+          <div>
+            <div style={{ fontWeight: 700, color: T.text, marginBottom: 8 }}>CopaCommerce</div>
+            <div>Plataforma hiperlocal de Copacabana</div>
+            <div style={{ marginTop: 4 }}>Comissão zero · Isonomia · Dados abertos</div>
+          </div>
+          <div style={{ display: "flex", gap: 32 }}>
+            <div>
+              <div style={{ fontWeight: 600, color: T.text, marginBottom: 8 }}>Plataforma</div>
+              <div>Como funciona</div>
+              <div>Para comerciantes</div>
+              <div>Dados do bairro</div>
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, color: T.text, marginBottom: 8 }}>Contato</div>
+              <div>Instagram</div>
+              <div>WhatsApp</div>
+              <div>Email</div>
+            </div>
+          </div>
+        </footer>
+
+        <DetailModal listing={selectedListing} onClose={() => setSelectedListing(null)} />
+      </div>
+    );
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  // ── EXPLORE PAGE (VER MAIS) ──
+  return (
+    <div style={styles.app}>
+      <GlobalStyles />
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ===== NAVBAR ===== */
-  .navbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 40px;
-    background: rgba(250,250,248,0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    transition: var(--transition);
-  }
-  .navbar.scrolled { background: rgba(255,255,255,0.95); }
-
-  .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px; font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.5px;
-    cursor: pointer;
-  }
-  .logo span { color: var(--accent); }
-
-  .nav-links { display: flex; gap: 8px; align-items: center; }
-  .nav-links a {
-    font-size: 14px; font-weight: 500;
-    color: var(--text-soft);
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: var(--radius-full);
-    transition: var(--transition);
-  }
-  .nav-links a:hover { background: #F0F0F0; color: var(--text); }
-  .nav-links .btn-cta {
-    background: var(--text);
-    color: white;
-    padding: 10px 20px;
-    font-weight: 600;
-  }
-  .nav-links .btn-cta:hover { background: #333; color: white; }
-
-  /* ===== PAGE: HOME ===== */
-  .page { display: none; min-height: 100vh; }
-  .page.active { display: block; }
-
-  .home-page {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 100vh;
-    padding: 120px 24px 60px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Background decoration */
-  .home-page::before {
-    content: '';
-    position: absolute;
-    top: -200px; right: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(255,56,92,0.06) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
-  .home-page::after {
-    content: '';
-    position: absolute;
-    bottom: -150px; left: -150px;
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(255,56,92,0.04) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  .home-content {
-    text-align: center;
-    max-width: 720px;
-    width: 100%;
-    position: relative;
-    z-index: 2;
-    animation: fadeUp 0.8s ease-out;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .home-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 8px 16px;
-    background: var(--accent-light);
-    border-radius: var(--radius-full);
-    font-size: 13px; font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 28px;
-    animation: fadeUp 0.8s ease-out 0.1s both;
-  }
-  .home-badge svg { width: 14px; height: 14px; }
-
-  .home-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(36px, 5vw, 56px);
-    font-weight: 400;
-    line-height: 1.15;
-    letter-spacing: -1px;
-    color: var(--text);
-    margin-bottom: 16px;
-    animation: fadeUp 0.8s ease-out 0.15s both;
-  }
-
-  .home-subtitle {
-    font-size: 17px;
-    color: var(--text-soft);
-    margin-bottom: 48px;
-    line-height: 1.6;
-    animation: fadeUp 0.8s ease-out 0.2s both;
-  }
-
-  /* ===== SEARCH BAR ===== */
-  .search-container {
-    display: flex; align-items: center; gap: 12px;
-    width: 100%; max-width: 640px;
-    margin: 0 auto;
-    animation: fadeUp 0.8s ease-out 0.3s both;
-  }
-
-  .search-bar {
-    flex: 1;
-    display: flex; align-items: center;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-full);
-    padding: 6px 6px 6px 24px;
-    transition: var(--transition);
-    box-shadow: var(--shadow-sm);
-  }
-  .search-bar:focus-within {
-    border-color: var(--border-focus);
-    box-shadow: var(--shadow-lg);
-  }
-  .search-bar svg {
-    width: 20px; height: 20px;
-    color: var(--text-muted);
-    flex-shrink: 0;
-  }
-  .search-bar input {
-    flex: 1;
-    border: none; outline: none;
-    font-size: 15px; font-family: inherit;
-    padding: 14px 12px;
-    background: transparent;
-    color: var(--text);
-  }
-  .search-bar input::placeholder { color: var(--text-muted); }
-
-  .search-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    flex-shrink: 0;
-  }
-  .search-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
-  .search-btn svg { width: 18px; height: 18px; }
-
-  .filter-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 16px 22px;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-full);
-    font-size: 14px; font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    transition: var(--transition);
-    white-space: nowrap;
-    box-shadow: var(--shadow-sm);
-    font-family: inherit;
-  }
-  .filter-btn:hover {
-    border-color: var(--border-focus);
-    box-shadow: var(--shadow-md);
-  }
-  .filter-btn.has-filters {
-    border-color: var(--accent);
-    background: var(--accent-light);
-    color: var(--accent);
-  }
-  .filter-btn svg { width: 18px; height: 18px; }
-  .filter-count {
-    background: var(--accent);
-    color: white;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    font-size: 11px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  /* Quick category chips */
-  .quick-categories {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
-    margin-top: 28px;
-    animation: fadeUp 0.8s ease-out 0.45s both;
-  }
-  .chip {
-    display: flex; align-items: center; gap: 6px;
-    padding: 10px 18px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-full);
-    font-size: 13px; font-weight: 500;
-    color: var(--text-soft);
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  .chip:hover {
-    border-color: var(--text);
-    color: var(--text);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  .chip .chip-emoji { font-size: 16px; }
-
-  /* ===== FILTER MODAL ===== */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(4px);
-    z-index: 200;
-    animation: fadeIn 0.25s ease;
-  }
-  .modal-overlay.active { display: flex; align-items: center; justify-content: center; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .modal {
-    background: var(--card);
-    border-radius: var(--radius-lg);
-    width: 90%; max-width: 680px;
-    max-height: 85vh;
-    display: flex; flex-direction: column;
-    box-shadow: var(--shadow-xl);
-    animation: modalSlide 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes modalSlide {
-    from { opacity: 0; transform: scale(0.92) translateY(20px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-header h2 { font-size: 18px; font-weight: 700; }
-  .modal-close {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: #F0F0F0;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: var(--transition);
-    font-size: 18px; color: var(--text);
-  }
-  .modal-close:hover { background: #E0E0E0; }
-
-  .modal-body {
-    padding: 24px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .filter-section { margin-bottom: 28px; }
-  .filter-section:last-child { margin-bottom: 0; }
-
-  .filter-section-header {
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer;
-    padding-bottom: 12px;
-  }
-  .filter-section-header h3 {
-    font-size: 15px; font-weight: 700;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .filter-section-header h3 .emoji { font-size: 18px; }
-  .filter-section-header .toggle-arrow {
-    font-size: 12px; color: var(--text-muted);
-    transition: var(--transition);
-  }
-  .filter-section-header .toggle-arrow.open { transform: rotate(180deg); }
-
-  .filter-options {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    padding-top: 4px;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease;
-  }
-  .filter-options.open { max-height: 500px; }
-
-  .filter-tag {
-    padding: 8px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-full);
-    font-size: 13px; font-weight: 500;
-    color: var(--text-soft);
-    cursor: pointer;
-    transition: var(--transition);
-    background: var(--card);
-    user-select: none;
-  }
-  .filter-tag:hover { border-color: var(--text); color: var(--text); }
-  .filter-tag.selected {
-    background: var(--text);
-    border-color: var(--text);
-    color: white;
-  }
-
-  .modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .btn-clear {
-    background: none; border: none;
-    font-size: 14px; font-weight: 600;
-    color: var(--text-soft);
-    cursor: pointer;
-    text-decoration: underline;
-    font-family: inherit;
-  }
-  .btn-clear:hover { color: var(--text); }
-  .btn-apply {
-    padding: 14px 28px;
-    background: var(--text);
-    color: white;
-    border: none;
-    border-radius: var(--radius-full);
-    font-size: 15px; font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    font-family: inherit;
-  }
-  .btn-apply:hover { background: #333; }
-
-  /* ===== RESULTS PAGE ===== */
-  .results-page {
-    padding-top: 80px;
-    min-height: 100vh;
-  }
-
-  .results-topbar {
-    display: flex; align-items: center; gap: 12px;
-    padding: 16px 40px;
-    border-bottom: 1px solid var(--border);
-    background: var(--card);
-    overflow-x: auto;
-  }
-  .results-topbar::-webkit-scrollbar { display: none; }
-
-  .results-query {
-    font-size: 14px; font-weight: 600;
-    color: var(--text);
-    white-space: nowrap;
-    padding-right: 12px;
-    border-right: 1px solid var(--border);
-    margin-right: 4px;
-  }
-
-  .active-filter-chip {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    background: #F5F5F5;
-    border-radius: var(--radius-full);
-    font-size: 13px; font-weight: 500;
-    white-space: nowrap;
-  }
-  .active-filter-chip .remove {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: #DADADA;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 10px;
-    transition: var(--transition);
-  }
-  .active-filter-chip .remove:hover { background: var(--accent); color: white; }
-
-  .results-layout {
-    display: flex;
-    height: calc(100vh - 136px);
-  }
-
-  .results-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    max-width: 560px;
-    min-width: 400px;
-  }
-  .results-list::-webkit-scrollbar { width: 4px; }
-  .results-list::-webkit-scrollbar-thumb { background: #DDD; border-radius: 4px; }
-
-  .results-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .results-header h2 { font-size: 22px; font-weight: 700; }
-  .results-header span { font-size: 13px; color: var(--text-muted); }
-
-  .result-card {
-    display: flex; gap: 16px;
-    padding: 18px;
-    background: var(--card);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-  }
-  .result-card:hover {
-    border-color: var(--text);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  .result-card.highlighted {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(255,56,92,0.15);
-  }
-
-  .result-img {
-    width: 110px; height: 110px;
-    border-radius: var(--radius-sm);
-    background: #F0F0F0;
-    flex-shrink: 0;
-    overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 36px;
-  }
-
-  .result-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-  .result-info h3 { font-size: 16px; font-weight: 600; line-height: 1.3; }
-  .result-category {
-    font-size: 12px; color: var(--text-muted); font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .result-rating {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 13px; font-weight: 600;
-  }
-  .result-rating .star { color: var(--accent); }
-  .result-rating .count { color: var(--text-muted); font-weight: 400; }
-  .result-address {
-    font-size: 13px; color: var(--text-soft);
-    margin-top: auto;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .result-address svg { width: 14px; height: 14px; color: var(--text-muted); }
-
-  .result-number {
-    position: absolute;
-    top: 18px; right: 18px;
-    width: 26px; height: 26px;
-    background: var(--text);
-    color: white;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-  }
-
-  /* Map */
-  .results-map {
-    flex: 1;
-    background: #E8E4DD;
-    position: relative;
-    overflow: hidden;
-  }
-  .results-map iframe {
-    width: 100%; height: 100%;
-    border: none;
-  }
-  .map-overlay {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
-  }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 768px) {
-    .navbar { padding: 12px 16px; }
-    .nav-links a:not(.btn-cta) { display: none; }
-    .home-page { padding: 100px 16px 40px; }
-    .search-container { flex-wrap: wrap; }
-    .filter-btn { flex: 0 0 100%; justify-content: center; order: 3; }
-    .results-layout { flex-direction: column; height: auto; }
-    .results-list { max-width: 100%; min-width: auto; max-height: 50vh; }
-    .results-map { height: 50vh; }
-    .results-topbar { padding: 12px 16px; }
-    .modal { width: 95%; margin: 12px; }
-    .result-img { width: 85px; height: 85px; }
-  }
-</style>
-</head>
-<body>
-
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar" id="navbar">
-  <div class="logo" onclick="goHome()">coppa</div>
-  <div class="nav-links">
-    <a href="#">Explorar</a>
-    <a href="#">Para Comerciantes</a>
-    <a href="#" class="btn-cta">Cadastre-se</a>
-  </div>
-</nav>
-
-<!-- ===== HOME PAGE ===== -->
-<div class="page active" id="homePage">
-  <div class="home-page">
-    <div class="home-content">
-
-      <div class="home-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Copacabana, Rio de Janeiro
+      {/* TOP BAR */}
+      <div style={styles.topBar}>
+        <div style={styles.topBarInner}>
+          <div style={styles.logo} onClick={() => { setPage("home"); setFilterCat(null); setSearch(""); }}>
+            <span style={{ fontSize: 26 }}>🏪</span>
+            <div>
+              <div>CopaCommerce</div>
+              <div style={styles.logoSub}>Copacabana · Rio de Janeiro</div>
+            </div>
+          </div>
+          <div style={styles.searchWrap}>
+            <input
+              style={styles.searchInput}
+              placeholder="Buscar estabelecimentos, categorias, endereços..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <span style={styles.searchIcon}>🔍</span>
+          </div>
+          <div style={styles.topBarActions}>
+            <button className="top-btn" style={styles.topBarBtn}>
+              📍 Copacabana
+            </button>
+          </div>
+        </div>
       </div>
 
-      <h1 class="home-title">Tudo e mais um pouco</h1>
-
-      <!-- Search -->
-      <div class="search-container">
-        <div class="search-bar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="searchInput" placeholder="O que você procura em Copacabana?" onkeydown="if(event.key==='Enter') doSearch()">
-          <button class="search-btn" onclick="doSearch()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      {/* SPLIT VIEW */}
+      <div style={styles.exploreContainer}>
+        {/* LEFT: LISTING LIST */}
+        <div style={styles.exploreList}>
+          <button
+            className="back-btn"
+            style={styles.backBtn}
+            onClick={() => setPage("home")}
+          >
+            ← Voltar
           </button>
+
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>
+            {filterCat || "Todos os"} estabelecimentos
+          </h2>
+          <p style={{ fontSize: 13, color: T.textMuted, marginBottom: 16 }}>
+            {filtered.length} resultados em Copacabana
+          </p>
+
+          {/* Category filter chips */}
+          <div style={styles.filterBar}>
+            <button
+              className="filter-chip"
+              style={styles.filterChip(!filterCat)}
+              onClick={() => setFilterCat(null)}
+            >
+              Todos
+            </button>
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.name}
+                className="filter-chip"
+                style={styles.filterChip(filterCat === c.name)}
+                onClick={() => setFilterCat(filterCat === c.name ? null : c.name)}
+              >
+                {c.icon} {c.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Listing rows */}
+          {filtered.map((listing, i) => (
+            <div
+              key={listing.id}
+              className="explore-card"
+              style={{
+                ...styles.exploreCard,
+                animation: `slideIn 0.3s ease ${i * 30}ms both`,
+                borderLeft: hoveredPin === listing.id ? `3px solid ${T.accent}` : "3px solid transparent",
+              }}
+              onMouseEnter={() => setHoveredPin(listing.id)}
+              onMouseLeave={() => setHoveredPin(null)}
+              onClick={() => setSelectedListing(listing)}
+            >
+              <div style={styles.exploreCardThumb(listing.hue)}>
+                <span>{listing.icon}</span>
+              </div>
+              <div style={styles.exploreCardBody}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{listing.name}</div>
+                <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 4 }}>
+                  {listing.category} · {listing.subcategory}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
+                  <RatingStars rating={listing.rating} />
+                  <span style={{ fontWeight: 600 }}>{listing.rating}</span>
+                  <span style={{ color: T.textLight }}>({listing.reviews})</span>
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                      color: listing.open ? T.brand : "#C44",
+                    }}
+                  >
+                    {listing.open ? "● Aberto" : "● Fechado"}
+                  </span>
+                </div>
+                <div style={{ fontSize: 11, color: T.textLight, marginTop: 4 }}>📍 {listing.address}</div>
+              </div>
+            </div>
+          ))}
         </div>
-        <button class="filter-btn" id="filterBtn" onclick="openFilters()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="currentColor"/></svg>
-          Filtros
-        </button>
-      </div>
 
-      <!-- Quick categories -->
-      <div class="quick-categories">
-        <div class="chip" onclick="quickSearch('Restaurantes')"><span class="chip-emoji">🍽️</span> Restaurantes</div>
-        <div class="chip" onclick="quickSearch('Padarias')"><span class="chip-emoji">🥐</span> Padarias</div>
-        <div class="chip" onclick="quickSearch('Farmácias')"><span class="chip-emoji">💊</span> Farmácias</div>
-        <div class="chip" onclick="quickSearch('Academias')"><span class="chip-emoji">💪</span> Academias</div>
-        <div class="chip" onclick="quickSearch('Salão de Beleza')"><span class="chip-emoji">💇</span> Beleza</div>
-        <div class="chip" onclick="quickSearch('Mercados')"><span class="chip-emoji">🛒</span> Mercados</div>
-        <div class="chip" onclick="quickSearch('Pet Shop')"><span class="chip-emoji">🐾</span> Pet Shop</div>
-        <div class="chip" onclick="quickSearch('Bares')"><span class="chip-emoji">🍺</span> Bares</div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- ===== RESULTS PAGE ===== -->
-<div class="page" id="resultsPage">
-  <div class="results-page">
-    <div class="results-topbar" id="resultsTopbar">
-      <span class="results-query" id="resultsQuery"></span>
-    </div>
-    <div class="results-layout">
-      <div class="results-list" id="resultsList"></div>
-      <div class="results-map" id="resultsMap"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== FILTER MODAL ===== -->
-<div class="modal-overlay" id="filterModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Filtros</h2>
-      <button class="modal-close" onclick="closeFilters()">✕</button>
-    </div>
-    <div class="modal-body" id="filterBody"></div>
-    <div class="modal-footer">
-      <button class="btn-clear" onclick="clearFilters()">Limpar filtros</button>
-      <button class="btn-apply" onclick="applyFilters()">Mostrar resultados</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ===== DATA =====
-const categories = {
-  "🍽️ Gastronomia": {
-    subcategories: ["Japonês","Italiano","Chinês","Mexicano","Árabe","Francês","Brasileiro","Vegano","Vegetariano","Fast Food","Pizza","Hamburgueria","Frutos do Mar","Churrascaria","Confeitaria","Padaria","Cafeteria","Sorveteria","Açaí","Bar & Pub","Boteco","Doceria","Creperia","Tapiocaria","Marmitex","Comida Baiana","Comida Mineira"]
-  },
-  "🛍️ Compras": {
-    subcategories: ["Moda Feminina","Moda Masculina","Moda Infantil","Acessórios","Joalheria","Ótica","Calçados","Esportes","Brechó","Papelaria","Livraria","Floricultura","Loja de Presentes","Artesanato","Bijuterias","Lingerie","Loja de Brinquedos"]
-  },
-  "💊 Saúde": {
-    subcategories: ["Farmácia","Clínica Médica","Dentista","Psicólogo","Nutricionista","Fisioterapia","Laboratório","Hospital","Ortopedia","Dermatologia","Oftalmologia","Cardiologia","Pediatria","Ginecologia","Clínica Veterinária","Acupuntura","Homeopatia"]
-  },
-  "💇 Beleza & Bem-Estar": {
-    subcategories: ["Salão de Beleza","Barbearia","Manicure & Pedicure","Estética","Spa","Massagem","Depilação","Sobrancelha","Tatuagem","Piercing","Maquiagem","Cabeleireiro","Design de Unhas"]
-  },
-  "💪 Fitness & Esporte": {
-    subcategories: ["Academia","CrossFit","Yoga","Pilates","Natação","Artes Marciais","Dança","Box","Funcional","Musculação","Escalada","Spinning","Personal Trainer"]
-  },
-  "🏠 Serviços para Casa": {
-    subcategories: ["Eletricista","Encanador","Pintor","Chaveiro","Dedetização","Limpeza","Móveis Planejados","Decoração","Jardinagem","Ar-Condicionado","Mudanças","Lavanderia","Costura & Reforma"]
-  },
-  "🎓 Educação": {
-    subcategories: ["Escola de Idiomas","Música","Reforço Escolar","Faculdade","Curso Técnico","Pré-Vestibular","Dança","Artes","Informática","Culinária","Fotografia","Oratória","Preparatório Concurso"]
-  },
-  "⛪ Religião": {
-    subcategories: ["Católica","Evangélica","Judaica","Espírita","Budista","Islâmica","Umbanda","Candomblé","Matriz Africana","Ecumênico"]
-  },
-  "🔧 Automotivo": {
-    subcategories: ["Oficina Mecânica","Lava-Jato","Borracharia","Auto-Elétrica","Funilaria","Auto Peças","Estacionamento","Aluguel de Veículos","Moto Peças","Som Automotivo"]
-  },
-  "🐾 Pet": {
-    subcategories: ["Pet Shop","Veterinário","Banho & Tosa","Hotel Pet","Adestramento","Ração & Acessórios","Dog Walker","Creche Pet"]
-  },
-  "🏢 Serviços Profissionais": {
-    subcategories: ["Advogado","Contador","Corretor de Imóveis","Corretor de Seguros","Despachante","Cartório","Coworking","Gráfica","Tradutor","Fotógrafo","TI & Informática","Marketing Digital"]
-  },
-  "🎭 Lazer & Cultura": {
-    subcategories: ["Cinema","Teatro","Museu","Galeria de Arte","Casa de Shows","Boate","Karaoke","Biblioteca","Espaço Cultural","Parque","Praia","Quadra Esportiva"]
-  },
-  "🏨 Hospedagem": {
-    subcategories: ["Hotel","Hostel","Pousada","Airbnb","Apart-Hotel","Motel","Flat"]
-  },
-  "🚗 Transporte": {
-    subcategories: ["Táxi","Mototáxi","Bicicleta","Patinete","Transfer","Aluguel de Carro","Fretamento"]
-  }
-};
-
-// Mock results data
-const mockResults = {
-  "Restaurantes": [
-    { name: "Amir Copacabana", cat: "Restaurante Árabe", rating: 4.6, reviews: 2340, address: "R. Ronald de Carvalho, 55", emoji: "🧆", lat: -22.9668, lng: -43.1838 },
-    { name: "Azumi", cat: "Restaurante Japonês", rating: 4.7, reviews: 1890, address: "R. Min. Viveiros de Castro, 127", emoji: "🍣", lat: -22.9643, lng: -43.1762 },
-    { name: "Galeto Sat's", cat: "Restaurante Brasileiro", rating: 4.5, reviews: 3120, address: "R. Barata Ribeiro, 7", emoji: "🍗", lat: -22.9652, lng: -43.1779 },
-    { name: "Le Blé Noir", cat: "Creperia Francesa", rating: 4.4, reviews: 980, address: "R. Xavier da Silveira, 19", emoji: "🥞", lat: -22.9705, lng: -43.1815 },
-    { name: "Miam Miam", cat: "Restaurante Francês", rating: 4.8, reviews: 670, address: "R. Gen. Goes Monteiro, 34", emoji: "🇫🇷", lat: -22.9658, lng: -43.1791 },
-    { name: "La Trattoria", cat: "Restaurante Italiano", rating: 4.3, reviews: 2100, address: "Av. Atlântica, 1936", emoji: "🍝", lat: -22.9672, lng: -43.1802 },
-  ],
-  "Padarias": [
-    { name: "Confeitaria Colombo", cat: "Padaria & Confeitaria", rating: 4.7, reviews: 5200, address: "R. Gonçalves Dias, 32", emoji: "🎂", lat: -22.9640, lng: -43.1780 },
-    { name: "Bakers", cat: "Padaria Artesanal", rating: 4.5, reviews: 1340, address: "R. Santa Clara, 86", emoji: "🍞", lat: -22.9710, lng: -43.1825 },
-    { name: "Talho Capixaba", cat: "Padaria & Delicatessen", rating: 4.6, reviews: 3800, address: "Av. Atlântica, 1022", emoji: "🥖", lat: -22.9680, lng: -43.1810 },
-    { name: "La Boulangerie", cat: "Padaria Francesa", rating: 4.4, reviews: 890, address: "R. Barata Ribeiro, 505", emoji: "🥐", lat: -22.9665, lng: -43.1795 },
-  ],
-  default: [
-    { name: "Copa Center", cat: "Comércio Local", rating: 4.3, reviews: 450, address: "Av. N.S. de Copacabana, 680", emoji: "🏪", lat: -22.9670, lng: -43.1790 },
-    { name: "Galeria River", cat: "Shopping", rating: 4.1, reviews: 1200, address: "R. Francisco Otaviano, 67", emoji: "🛒", lat: -22.9720, lng: -43.1843 },
-    { name: "Copa Shopping Mall", cat: "Centro Comercial", rating: 4.0, reviews: 890, address: "Av. N.S. de Copacabana, 1100", emoji: "🏬", lat: -22.9690, lng: -43.1800 },
-    { name: "Mercadão de Copa", cat: "Mercado", rating: 4.4, reviews: 2300, address: "R. Siqueira Campos, 143", emoji: "🛍️", lat: -22.9662, lng: -43.1785 },
-    { name: "Loja Tropical", cat: "Loja", rating: 4.2, reviews: 340, address: "R. Figueiredo Magalhães, 414", emoji: "🌴", lat: -22.9655, lng: -43.1770 },
-  ]
-};
-
-// ===== STATE =====
-let selectedFilters = new Set();
-let currentQuery = '';
-
-// ===== NAVIGATION =====
-function goHome() {
-  document.getElementById('homePage').classList.add('active');
-  document.getElementById('resultsPage').classList.remove('active');
-  selectedFilters.clear();
-  updateFilterBtn();
-}
-
-// ===== SEARCH =====
-function doSearch() {
-  const input = document.getElementById('searchInput');
-  currentQuery = input.value.trim() || 'Estabelecimentos';
-  showResults(currentQuery);
-}
-
-function quickSearch(term) {
-  document.getElementById('searchInput').value = term;
-  currentQuery = term;
-  showResults(term);
-}
-
-function showResults(query) {
-  document.getElementById('homePage').classList.remove('active');
-  document.getElementById('resultsPage').classList.add('active');
-
-  // Set query display
-  const queryEl = document.getElementById('resultsQuery');
-  queryEl.textContent = `"${query}" em Copacabana`;
-
-  // Active filter chips in topbar
-  const topbar = document.getElementById('resultsTopbar');
-  topbar.querySelectorAll('.active-filter-chip').forEach(el => el.remove());
-  selectedFilters.forEach(f => {
-    const chip = document.createElement('div');
-    chip.className = 'active-filter-chip';
-    chip.innerHTML = `${f} <span class="remove" onclick="removeFilter('${f}')">✕</span>`;
-    topbar.appendChild(chip);
-  });
-
-  // Build results list
-  const results = mockResults[query] || mockResults.default;
-  const listEl = document.getElementById('resultsList');
-  listEl.innerHTML = `
-    <div class="results-header">
-      <h2>${query}</h2>
-      <span>${results.length} lugares encontrados</span>
-    </div>
-  `;
-  results.forEach((r, i) => {
-    const card = document.createElement('div');
-    card.className = 'result-card';
-    card.onclick = () => highlightCard(card);
-    card.innerHTML = `
-      <div class="result-img">${r.emoji}</div>
-      <div class="result-info">
-        <span class="result-category">${r.cat}</span>
-        <h3>${r.name}</h3>
-        <div class="result-rating">
-          <span class="star">★</span> ${r.rating}
-          <span class="count">(${r.reviews.toLocaleString('pt-BR')})</span>
-        </div>
-        <div class="result-address">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          ${r.address}
+        {/* RIGHT: MAP */}
+        <div style={styles.exploreMap}>
+          <MiniMap
+            listings={filtered}
+            hoveredId={hoveredPin}
+            onHover={setHoveredPin}
+            onLeave={() => setHoveredPin(null)}
+            mapRef={mapRef}
+          />
+          {/* Map overlay info */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 16,
+              left: 16,
+              background: "rgba(255,255,255,0.95)",
+              borderRadius: T.radiusSm,
+              padding: "10px 16px",
+              fontSize: 12,
+              color: T.textMuted,
+              boxShadow: T.shadow,
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            <span style={{ fontWeight: 700, color: T.text }}>{filtered.length}</span> estabelecimentos no mapa
+            · Copacabana, RJ
+          </div>
         </div>
       </div>
-      <div class="result-number">${i + 1}</div>
-    `;
-    listEl.appendChild(card);
-  });
 
-  // Build Google Maps embed
-  const searchQuery = encodeURIComponent(`${query} Copacabana Rio de Janeiro`);
-  const mapEl = document.getElementById('resultsMap');
-  mapEl.innerHTML = `<iframe src="https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${searchQuery}&center=-22.9685,-43.1810&zoom=15" allowfullscreen loading="lazy"></iframe>`;
+      <DetailModal listing={selectedListing} onClose={() => setSelectedListing(null)} />
+    </div>
+  );
 }
-
-function highlightCard(card) {
-  document.querySelectorAll('.result-card').forEach(c => c.classList.remove('highlighted'));
-  card.classList.add('highlighted');
-}
-
-function removeFilter(name) {
-  selectedFilters.delete(name);
-  showResults(currentQuery);
-  updateFilterBtn();
-}
-
-// ===== FILTERS =====
-function openFilters() {
-  const modal = document.getElementById('filterModal');
-  modal.classList.add('active');
-  buildFilterUI();
-}
-
-function closeFilters() {
-  document.getElementById('filterModal').classList.remove('active');
-}
-
-function buildFilterUI() {
-  const body = document.getElementById('filterBody');
-  body.innerHTML = '';
-
-  Object.entries(categories).forEach(([catName, catData]) => {
-    const section = document.createElement('div');
-    section.className = 'filter-section';
-
-    const isOpen = catData.subcategories.some(s => selectedFilters.has(s));
-
-    section.innerHTML = `
-      <div class="filter-section-header" onclick="toggleSection(this)">
-        <h3><span class="emoji">${catName.split(' ')[0]}</span> ${catName.split(' ').slice(1).join(' ')}</h3>
-        <span class="toggle-arrow ${isOpen ? 'open' : ''}">▼</span>
-      </div>
-      <div class="filter-options ${isOpen ? 'open' : ''}">
-        ${catData.subcategories.map(sub => `
-          <div class="filter-tag ${selectedFilters.has(sub) ? 'selected' : ''}" onclick="toggleFilter(this, '${sub}')">${sub}</div>
-        `).join('')}
-      </div>
-    `;
-    body.appendChild(section);
-  });
-}
-
-function toggleSection(header) {
-  const arrow = header.querySelector('.toggle-arrow');
-  const options = header.nextElementSibling;
-  arrow.classList.toggle('open');
-  options.classList.toggle('open');
-}
-
-function toggleFilter(el, name) {
-  el.classList.toggle('selected');
-  if (selectedFilters.has(name)) {
-    selectedFilters.delete(name);
-  } else {
-    selectedFilters.add(name);
-  }
-  updateFilterBtn();
-}
-
-function clearFilters() {
-  selectedFilters.clear();
-  buildFilterUI();
-  updateFilterBtn();
-}
-
-function applyFilters() {
-  closeFilters();
-  if (currentQuery) {
-    showResults(currentQuery);
-  }
-}
-
-function updateFilterBtn() {
-  const btn = document.getElementById('filterBtn');
-  const count = selectedFilters.size;
-  if (count > 0) {
-    btn.classList.add('has-filters');
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="currentColor"/></svg>
-      Filtros
-      <span class="filter-count">${count}</span>
-    `;
-  } else {
-    btn.classList.remove('has-filters');
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/><circle cx="8" cy="6" r="2" fill="currentColor"/></svg>
-      Filtros
-    `;
-  }
-}
-
-// ===== NAVBAR SCROLL =====
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
-});
-
-// ===== CLOSE MODAL ON OVERLAY CLICK =====
-document.getElementById('filterModal').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeFilters();
-});
-</script>
-</body>
-</html>
