@@ -57,7 +57,7 @@ html,body{height:100%;font-family:'DM Sans','Nunito',sans-serif;background:var(-
 /* ─── BODY ─── */
 .body-content{max-width:1280px;margin:0 auto;padding:32px 24px}
 .section-title{font-size:24px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
-.section-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px}
+.section-sub{font-size:14px;color:var(--text-muted);margin-bottom:0}
 .section-sub a{color:var(--brand);cursor:pointer;font-weight:600;text-decoration:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:24px}
 
@@ -76,6 +76,14 @@ html,body{height:100%;font-family:'DM Sans','Nunito',sans-serif;background:var(-
 .card-reviews{font-size:12px;color:var(--text-light)}
 .card-address{font-size:11.5px;color:var(--text-light);margin-top:8px;line-height:1.4}
 .stars{display:inline-flex;gap:1px}.star{font-size:13px}.star.on{color:#FFB800}.star.off{color:#DDD}
+
+/* ─── VER MAPA BUTTON ─── */
+.section-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.section-header-left{flex:1}
+.btn-ver-mapa{background:var(--accent);color:#fff;border:none;border-radius:50px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:all .25s;box-shadow:0 4px 16px rgba(255,107,53,.35);white-space:nowrap;animation:popIn .4s ease .2s both}
+.btn-ver-mapa:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 24px rgba(255,107,53,.45);background:#e85a28}
+.btn-ver-mapa .mapa-icon{font-size:18px;display:flex;align-items:center}
+.btn-ver-mapa .mapa-count{background:rgba(255,255,255,.25);padding:2px 10px;border-radius:50px;font-size:12px;margin-left:4px}
 
 .ver-mais-wrap{text-align:center;margin-top:40px;margin-bottom:20px}
 .ver-mais-btn{background:var(--text);color:#fff;border:none;border-radius:50px;padding:14px 48px;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;letter-spacing:.3px;font-family:inherit}
@@ -211,6 +219,13 @@ html,body{height:100%;font-family:'DM Sans','Nunito',sans-serif;background:var(-
 .lightbox-btn:hover{background:rgba(255,255,255,.3)}
 .lightbox-counter{color:rgba(255,255,255,.6);font-size:13px;margin-top:12px}
 
+/* ─── FLOATING MAP BUTTON ─── */
+.floating-mapa{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:900;animation:slideUp .5s ease .5s both}
+.floating-mapa-btn{background:var(--text);color:#fff;border:none;border-radius:50px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(0,0,0,.3);transition:all .25s}
+.floating-mapa-btn:hover{transform:scale(1.05);box-shadow:0 8px 32px rgba(0,0,0,.4);background:#333}
+.floating-mapa-btn .fm-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
+
 /* PAGES */
 #page-home,#page-explore,#page-store{display:none}
 #page-home.active{display:block}
@@ -230,13 +245,26 @@ html,body{height:100%;font-family:'DM Sans','Nunito',sans-serif;background:var(-
   <div class="cat-bar" id="cat-bar"><div class="cat-bar-inner" id="cat-bar-inner"></div><div class="mega-drop" id="mega-drop"><div class="mega-inner" id="mega-inner"></div></div></div>
   <div class="mega-overlay" id="mega-overlay" onclick="closeMega()"></div>
   <div class="body-content">
-    <div class="section-title" id="section-title">Descubra Copacabana</div>
-    <div class="section-sub" id="section-sub"></div>
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-title" id="section-title">Descubra Copacabana</div>
+        <div class="section-sub" id="section-sub"></div>
+      </div>
+      <button class="btn-ver-mapa" id="btn-ver-mapa" onclick="goExplore()">
+        <span class="mapa-icon">🗺️</span> VER MAPA <span class="mapa-count" id="mapa-count">48</span>
+      </button>
+    </div>
     <div class="grid" id="home-grid"></div>
     <div class="ver-mais-wrap" id="ver-mais-wrap"><button class="ver-mais-btn" onclick="goExplore()">Ver todos os <span id="ver-mais-count">48</span> estabelecimentos →</button></div>
     <div class="banner"><div><h3>Tem um negócio em Copacabana?</h3><p>Cadastre-se gratuitamente. Sem comissões, sem taxas. Seus clientes pedem direto no seu WhatsApp.</p></div><button class="banner-btn">Cadastrar meu negócio</button></div>
   </div>
   <div class="footer"><div><div style="font-weight:700;color:var(--text);margin-bottom:8px">CopaCommerce</div><div>Plataforma hiperlocal de Copacabana</div><div style="margin-top:4px">Comissão zero · Isonomia · Dados abertos</div></div><div style="display:flex;gap:32px"><div><div style="font-weight:600;color:var(--text);margin-bottom:8px">Plataforma</div><div>Como funciona</div><div>Para comerciantes</div><div>Dados do bairro</div></div><div><div style="font-weight:600;color:var(--text);margin-bottom:8px">Contato</div><div>Instagram</div><div>WhatsApp</div><div>Email</div></div></div></div>
+  <!-- Floating map button -->
+  <div class="floating-mapa" id="floating-mapa">
+    <button class="floating-mapa-btn" onclick="goExplore()">
+      <span class="fm-dot"></span> Mostrar mapa · <span id="floating-count">48</span> locais
+    </button>
+  </div>
 </div>
 
 <!-- ════════ EXPLORE ════════ -->
@@ -393,9 +421,9 @@ function showPage(name){
   document.getElementById('page-'+name).classList.add('active');
   window.scrollTo(0,0);
 }
-function goHome(){S.page='home';S.filterCat=null;S.search='';S.activeCat=null;document.getElementById('search-home').value='';showPage('home');renderAll()}
-function goExplore(){S.page='explore';document.getElementById('search-explore').value=S.search;showPage('explore');renderExploreList();renderMapPins()}
-function goStore(id){S.page='store';S.storeId=id;S.storeTab='perfil';S.vitrineCat=null;showPage('store');renderStore()}
+function goHome(){S.page='home';S.filterCat=null;S.search='';S.activeCat=null;document.getElementById('search-home').value='';showPage('home');renderAll();document.getElementById('floating-mapa').style.display=''}
+function goExplore(){S.page='explore';document.getElementById('search-explore').value=S.search;showPage('explore');renderExploreList();renderMapPins();document.getElementById('floating-mapa').style.display='none'}
+function goStore(id){S.page='store';S.storeId=id;S.storeTab='perfil';S.vitrineCat=null;showPage('store');renderStore();document.getElementById('floating-mapa').style.display='none'}
 
 // ═══ SEARCH ═══
 function onSearch(v){S.search=v;if(S.page==='home'){document.getElementById('search-home').value=v;renderHomeGrid()}else if(S.page==='explore'){document.getElementById('search-explore').value=v;renderExploreList();renderMapPins()}}
@@ -423,11 +451,13 @@ f.slice(0,12).forEach((l,i)=>{const c=document.createElement('div');c.className=
 c.innerHTML=`<div class="card-thumb" style="background:${grad(l.hue)}"><span>${l.icon}</span><div class="card-badge ${l.open?'open':'closed'}">${l.open?'Aberto':'Fechado'}</div>${l.whatsapp?'<div class="card-whatsapp"><span>💬</span> Pedir</div>':''}</div><div class="card-body"><div class="card-name">${l.name}</div><div class="card-cat">${l.category} · ${l.subcategory}</div><div class="card-bottom"><div class="card-rating"><span class="stars">${stars(l.rating)}</span><span style="margin-left:2px">${l.rating}</span></div><span class="card-reviews">${l.reviews} avaliações</span></div><div class="card-address">📍 ${l.address}</div></div>`;grid.appendChild(c)});
 document.getElementById('section-title').textContent=S.filterCat?`${S.filterCat} em Copacabana`:'Descubra Copacabana';
 const sub=document.getElementById('section-sub');sub.innerHTML=S.filterCat?`${f.length} estabelecimentos · <a onclick="clearFilter()">Limpar filtro</a>`:`${f.length} estabelecimentos mapeados · Comissão zero · Pedidos via WhatsApp`;
-const vw=document.getElementById('ver-mais-wrap');vw.style.display=f.length>12?'block':'none';document.getElementById('ver-mais-count').textContent=f.length}
+const vw=document.getElementById('ver-mais-wrap');vw.style.display=f.length>12?'block':'none';document.getElementById('ver-mais-count').textContent=f.length;
+document.getElementById('mapa-count').textContent=f.length;
+document.getElementById('floating-count').textContent=f.length}
 
 // ═══ EXPLORE ═══
 function renderExploreList(){const f=getFiltered(),list=document.getElementById('explore-list');
-let h=`<button class="back-btn" onclick="goHome()">← Voltar</button><h2 style="font-size:20px;font-weight:800;margin-bottom:4px">${S.filterCat||'Todos os'} estabelecimentos</h2><p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">${f.length} resultados em Copacabana</p><div class="filter-bar"><button class="filter-chip${!S.filterCat?' active':''}" onclick="setFilter(null)">Todos</button>`;
+let h=`<button class="back-btn" onclick="goHome()">← Voltar</button><h2 style="font-size:20px;font-weight:800;margin-bottom:4px">${S.filterCat||'Todos os'} estabelecimentos</h2><p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">${f.length} resultados em Copacabana</p><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--brand);margin-bottom:10px;display:flex;align-items:center;gap:6px">🔍 Filtrar por categoria</div><div class="filter-bar"><button class="filter-chip${!S.filterCat?' active':''}" onclick="setFilter(null)">Todos</button>`;
 CATEGORIES.forEach(c=>{h+=`<button class="filter-chip${S.filterCat===c.name?' active':''}" onclick="setFilter('${c.name}')">${c.icon} ${c.name}</button>`});h+=`</div>`;
 f.forEach((l,i)=>{h+=`<div class="explore-card${S.hoveredPin===l.id?' highlight':''}" data-id="${l.id}" style="animation:slideIn .3s ease ${i*30}ms both" onmouseenter="hoverPin(${l.id})" onmouseleave="hoverPin(null)" onclick="goStore(${l.id})"><div class="explore-card-thumb" style="background:${grad(l.hue)}"><span>${l.icon}</span></div><div class="explore-card-body"><div style="font-size:14px;font-weight:700;margin-bottom:2px">${l.name}</div><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${l.category} · ${l.subcategory}</div><div style="display:flex;align-items:center;gap:6px;font-size:12px"><span class="stars">${stars(l.rating)}</span><span style="font-weight:600">${l.rating}</span><span style="color:var(--text-light)">(${l.reviews})</span><span style="margin-left:auto;font-size:10.5px;font-weight:600;color:${l.open?'var(--brand)':'#C44'}">${l.open?'● Aberto':'● Fechado'}</span></div><div style="font-size:11px;color:var(--text-light);margin-top:4px">📍 ${l.address}</div></div></div>`});
 list.innerHTML=h;document.getElementById('map-count').textContent=f.length}
